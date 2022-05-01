@@ -1,43 +1,72 @@
+import os
+from enum import Enum
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Dict, Optional
 
-from typing import Any, Dict, List, Optional, Union
+import yaml
+from pydantic import BaseSettings, Field, PostgresDsn, validator
 
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+
+class LogLevels(str, Enum):
+    """Enum of permitted log levels."""
+
+    debug = "debug"
+    info = "info"
+    warning = "warning"
+    error = "error"
+    critical = "critical"
 
 
-class Settings(BaseSettings):
-    PROJECT_NAME: str
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+class UvicornSettings(BaseSettings):
+    """Settings for uvicorn server"""
 
-    @validator("BACKEND_CORS_ORIGINS", pre=True)
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
-            return v
-        raise ValueError(v)
+    host: str
+    port: int = Field(ge=0, le=65535)
+    log_level: LogLevels
+    reload: bool
 
-    POSTGRES_SERVER: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    DATABASE_URI: Optional[PostgresDsn] = None
 
-    @validator("DATABASE_URI", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+class DatabaseConnectionSettings(BaseSettings):
+    """Settings for database connection"""
+
+    postgres_user: str
+    postgres_password: str
+    postgres_database: str
+    postgres_server: str
+    postgres_uri: Optional[PostgresDsn] = None
+
+    @validator("postgres_uri", pre=True)
+    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         if isinstance(v, str):
             return v
         return PostgresDsn.build(
             scheme="postgresql",
-            user=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_SERVER"),
-            path=f"/{values.get('POSTGRES_DB') or ''}",
+            user=values.get("postgres_user"),
+            password=values.get("postgres_password"),
+            host=values.get("postgres_server"),
+            path=f"/{values.get('postgres_database')}",
         )
-    
-
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
 
 
-settings = Settings()
+class Settings(BaseSettings):
+    uvicorn: UvicornSettings
+    db_connection: DatabaseConnectionSettings
+
+
+def load_from_yaml() -> Any:
+    yaml_path = (
+        Path("appsettings.yaml")
+        if os.getenv("SERVER_ENV")
+        else Path("appsettings-local.yaml")
+    )
+    with open(yaml_path) as fp:
+        config = yaml.safe_load(fp)
+    return config
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    yaml_config = load_from_yaml()
+    settings = Settings(**yaml_config)
+    return settings

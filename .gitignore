@@ -139,3 +139,7 @@ cython_debug/
 
 # Text Editor
 .vscode
+.idea
+
+# app settings config
+appsettings-local.yaml
