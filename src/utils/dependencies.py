@@ -1,13 +1,12 @@
 import json
 
 from fastapi import File, UploadFile
-from lxml.etree import parse
 
-from config.annotations import JSONObject
-from tasks.xml_parser import convert_etree_to_json_object
+from config.annotations import JSONType
+from tasks.xml_parser import XMLParser
 
 
-async def parse_json_input_file(file: UploadFile = File(...)) -> JSONObject:
+async def parse_json_input_file(file: UploadFile = File(...)) -> JSONType:
     """
     Parses a JSON file and returns its content as a JSONObject.
     :param file: input JSON file
@@ -18,12 +17,10 @@ async def parse_json_input_file(file: UploadFile = File(...)) -> JSONObject:
     return json_data
 
 
-async def parse_xml_input_file(file: UploadFile = File(...)) -> JSONObject:
+async def parse_xml_input_file(file: UploadFile = File(...)) -> JSONType:
     """
     Parses an XML file and returns its content as a
     :param file: input XML file
     :return: JSONObject with :param file content
     """
-    xml_parsed = parse(file.file)
-    xml_parsed_json_obj = convert_etree_to_json_object(xml_parsed.getroot())
-    return xml_parsed_json_obj
+    return XMLParser.parse_file(file.file)

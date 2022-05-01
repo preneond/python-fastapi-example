@@ -3,7 +3,7 @@ from typing import Any, Dict
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 
-from config.annotations import JSONObject
+from config.annotations import JSONType
 from src.utils.responses import success_response
 from utils.dependencies import parse_json_input_file, parse_xml_input_file
 
@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post("/xml2json")
 async def convert_xml2json(
-    request: Request, xml_data: Any = Depends(parse_xml_input_file)
+    request: Request, xml_data: JSONType = Depends(parse_xml_input_file)
 ) -> Dict[str, Any]:
     """
     Convert XML to JSON
@@ -25,7 +25,7 @@ async def convert_xml2json(
 
 @router.post("/json2xml")
 async def convert_json2xml(
-    request: Request, json_data: JSONObject = Depends(parse_json_input_file)
+    request: Request, json_data: JSONType = Depends(parse_json_input_file)
 ) -> Dict[str, Any]:
     """
     Convert JSON to XML
