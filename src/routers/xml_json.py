@@ -3,9 +3,9 @@ from typing import Any, Dict
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 
-from config.annotations import JSONType
+from src.config.annotations import JSONType
+from src.utils.dependencies import parse_json_input_file, parse_xml_input_file
 from src.utils.responses import success_response
-from utils.dependencies import parse_json_input_file, parse_xml_input_file
 
 router = APIRouter()
 

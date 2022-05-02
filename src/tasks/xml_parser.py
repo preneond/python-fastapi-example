@@ -3,7 +3,7 @@ from typing import Any, Dict, Union
 
 from lxml.etree import _Element, parse
 
-from config.annotations import JSONType
+from src.config.annotations import JSONType
 
 
 class XMLElementType(str, Enum):
@@ -21,10 +21,14 @@ class XMLElementType(str, Enum):
 
 
 class XMLParser:
+    """
+    XML parser class
+    """
+
     @staticmethod
     def _parse_etree_node_leaf(
         element: _Element,
-    ) -> Union[str, int, float, bool, None]:
+    ) -> Union[str, int, float, bool, Dict[Any, Any], None]:
         """
         Parses a lxml ElementTree and returns its value.
         :param element: lxml ElementTree
@@ -32,12 +36,21 @@ class XMLParser:
         """
         element_type = XMLElementType(element.get("type"))
         element_value = element.get("value")
-        if (
-            element_type in [XMLElementType.NULL, XMLElementType.STRING]
-            or not element_value
-        ):
+
+        # element value validation check
+        if element_value is None:
+            if element_type is XMLElementType.NULL:
+                return None
+            elif element_type is XMLElementType.OBJECT:
+                # edge case -> when json looks like {}, we do not want to return "null", but <item type="object"/>
+                return {}
+            else:
+                raise ValueError("Invalid XML file schema")
+
+        # element type validation check
+        if element_type is XMLElementType.STRING:
             return element_value
-        elif element_type is XMLElementType.INTEGER:
+        if element_type is XMLElementType.INTEGER:
             return int(element_value)
         elif element_type is XMLElementType.FLOAT:
             return float(element_value)
@@ -49,31 +62,6 @@ class XMLParser:
             )
 
     @staticmethod
-    def _parse_etree_node_parent(
-        element: _Element, element_type: XMLElementType
-    ) -> JSONType:
-        """
-        Parses a lxml Element and returns its value.
-        :param element: lxml Elemnt
-        :param element_type:
-        :return:
-        """
-        # if the children element is a dictionary, then save return value of _parse_etree_to_json_type
-        if element_type is XMLElementType.OBJECT:
-            return XMLParser._parse_etree_to_json_type(element)
-
-        # if the element is a list, then save list of _parse_etree_to_json_type's return values
-        elif element_type is XMLElementType.LIST:
-            arr = []
-            for child in element.iterchildren():
-                obj = XMLParser._parse_etree_to_json_type(child)
-                arr.append(obj)
-            return arr
-        # if the element is not an object nor a list, then return the value of the element
-        else:
-            return XMLParser._parse_etree_node_leaf(element)
-
-    @staticmethod
     def _parse_etree_to_json_type(node: _Element) -> JSONType:
         """
         Converts lxml.etree.ElementTree to a :type JSONObject.
@@ -81,25 +69,39 @@ class XMLParser:
         :return: JSONObject
         """
 
-        # used as a result object only when the node has children
-        result: Dict[str, JSONType] = {}
-
-        for element in node.iterchildren():
-            element_type = XMLElementType(element.get("type"))
-            element_key = element.get("key")
-
-            if not element_key:
+        # if the node is leaf, then return the value of the node with/without its key
+        if not node.getchildren():  # type: ignore
+            node_key = node.get("key")
+            if node_key is None:
                 return XMLParser._parse_etree_node_leaf(node)
+            else:
+                return {node_key: XMLParser._parse_etree_node_leaf(node)}
 
-            result[element_key] = XMLParser._parse_etree_node_parent(
-                element, element_type
-            )
+        # if all children are key-less, then return a list of children
+        if all(map(lambda child: child.get("key") is None, node.iterchildren())):
+            return [
+                XMLParser._parse_etree_to_json_type(child)
+                for child in node.iterchildren()
+            ]
 
-        # if the result is empty, then return the value of the node
-        if not result:
-            return XMLParser._parse_etree_node_leaf(node)
+        # if all children have keys, then return a dictionary of children
+        else:
+            result: Dict[str, JSONType] = {}
+            for children in node.iterchildren():
+                children_key = children.get("key")
+                children_type = XMLElementType(children.get("type"))
 
-        return result
+                if children_key is None:
+                    raise ValueError("Invalid XML file schema")
+
+                if children_type in [XMLElementType.OBJECT, XMLElementType.LIST]:
+                    result[children_key] = XMLParser._parse_etree_to_json_type(children)
+
+                # if the element is not an object nor a list, then return the value of the element
+                else:
+                    result[children_key] = XMLParser._parse_etree_node_leaf(children)
+
+            return result
 
     @staticmethod
     def parse_file(file: Any) -> JSONType:
