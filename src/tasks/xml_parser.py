@@ -1,6 +1,8 @@
+import json
 from enum import Enum
 from typing import Any, Dict, Union
 
+from lxml import etree
 from lxml.etree import _Element, parse
 
 from src.config.annotations import JSONType
@@ -18,6 +20,30 @@ class XMLElementType(str, Enum):
     OBJECT = "object"
     LIST = "list"
     NULL = "null"
+
+    @staticmethod
+    def from_value(value: Any) -> Any:
+        """
+        Returns the XML Element type from given value
+        :param value:
+        :return:
+        """
+        if isinstance(value, str):
+            return XMLElementType.STRING
+        elif isinstance(value, bool):
+            return XMLElementType.BOOLEAN
+        elif isinstance(value, int):
+            return XMLElementType.INTEGER
+        elif isinstance(value, float):
+            return XMLElementType.FLOAT
+        elif isinstance(value, dict):
+            return XMLElementType.OBJECT
+        elif isinstance(value, list):
+            return XMLElementType.LIST
+        elif value is None:
+            return XMLElementType.NULL
+        else:
+            raise ValueError(f"Unsupported type: {type(value)}")
 
 
 class XMLParser:
@@ -104,6 +130,60 @@ class XMLParser:
             return result
 
     @staticmethod
+    def _parse_json_data_to_etree(data: JSONType) -> _Element:
+        """
+        Converts a :type JSONObject to lxml.etree.ElementTree.
+        :param item: JSONObject
+        :return: lxml.etree.ElementTree
+        """
+        item_type = XMLElementType.from_value(data)
+        if item_type is XMLElementType.OBJECT:
+            element = etree.Element("ITEM", attrib={"type": "object"})
+            for key, value in data.items():  # type: ignore
+                child = XMLParser._parse_json_data_to_etree(value)
+                child.set("key", key)
+                element.append(child)
+            return element
+        elif item_type is XMLElementType.LIST:
+            element = etree.Element("ITEM", attrib={"type": "list"})
+            for value in data:  # type: ignore
+                child = XMLParser._parse_json_data_to_etree(value)
+                element.append(child)
+            return element
+        elif item_type is XMLElementType.STRING:
+            return etree.Element("ITEM", attrib={"type": "string", "value": data})  # type: ignore
+        elif item_type is XMLElementType.INTEGER:
+            return etree.Element(
+                "ITEM", attrib={"type": "integer", "value": json.dumps(data)}
+            )
+        elif item_type is XMLElementType.FLOAT:
+            return etree.Element(
+                "ITEM", attrib={"type": "float", "value": json.dumps(data)}
+            )
+        elif item_type is XMLElementType.BOOLEAN:
+            return etree.Element(
+                "ITEM", attrib={"type": "boolean", "value": json.dumps(data)}
+            )
+        elif item_type is XMLElementType.NULL:
+            return etree.Element("ITEM", attrib={"type": "null"})
+        else:
+            raise ValueError("Invalid JSON format")
+
+    @staticmethod
     def parse_file(file: Any) -> JSONType:
+        """
+        Parses XML file to JSONType object
+        :param file:
+        :return:
+        """
         xml_parsed = parse(file)
         return XMLParser._parse_etree_to_json_type(node=xml_parsed.getroot())
+
+    @staticmethod
+    def parse_json(data: JSONType) -> _Element:
+        """
+        Parses JSON string to JSONType object
+        :param data: JSONType data
+        :return: etree.Element
+        """
+        return XMLParser._parse_json_data_to_etree(data)

@@ -1,12 +1,13 @@
 import json
+from typing import Optional
 
 from fastapi import File, UploadFile
+from starlette.requests import Request
 
 from config.annotations import JSONType
-from tasks.xml_parser import XMLParser
 
 
-async def parse_json_input_file(file: UploadFile = File(...)) -> JSONType:
+async def load_json_file(file: UploadFile = File(...)) -> JSONType:
     """
     Parses a JSON file and returns its content as a JSONObject.
     :param file: input JSON file
@@ -17,10 +18,10 @@ async def parse_json_input_file(file: UploadFile = File(...)) -> JSONType:
     return json_data
 
 
-async def parse_xml_input_file(file: UploadFile = File(...)) -> JSONType:
+async def get_accept_request_header(request: Request) -> Optional[str]:
     """
-    Parses an XML file and returns its content as a
-    :param file: input XML file
-    :return: JSONObject with :param file content
+    Returns the value of the Accept header of the request.
+    :param request: request
+    :return: Accept header value
     """
-    return XMLParser.parse_file(file.file)
+    return request.headers.get("Accept")
