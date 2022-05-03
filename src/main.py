@@ -24,7 +24,6 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["localhost:8000", "0.0.0.0:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,7 +39,6 @@ async def startup_event() -> None:
     logger.addHandler(handler)
     app.state.logger = logger
     # setup db connection
-    settings = get_settings()
     db_connection = DatabaseConnection(dsn=settings.db_connection.postgres_uri)
     app.state.db_connection = db_connection
 

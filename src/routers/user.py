@@ -3,7 +3,7 @@ from pydantic import EmailStr
 from starlette import status
 from starlette.responses import JSONResponse
 
-import schemas
+from core import schemas
 from core.database import DatabaseConnection
 from core.dependencies import get_db_connection
 from core.responses import error_response, success_response
@@ -13,14 +13,20 @@ router = APIRouter()
 
 @router.get("/users", response_model=schemas.UserListResponse)
 async def get_users(
+    offset: int = Query(default=0),
+    limit: int = Query(default=10),
     db_connection: DatabaseConnection = Depends(get_db_connection),
 ) -> JSONResponse:
     """
     Returns a list of all users.
+    :param limit: number of users to return - default 10
+    :param offset: offset of the first user to return - default 0
     :param db_connection: DatabaseConnection object
     :return: list of all users
     """
-    users = db_connection.query_all("SELECT * FROM users")
+    users = db_connection.query_all(
+        "SELECT * FROM users ORDER BY email LIMIT %s OFFSET %s", (limit, offset)
+    )
     return success_response(users)
 
 
