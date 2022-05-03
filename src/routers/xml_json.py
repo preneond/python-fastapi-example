@@ -1,19 +1,19 @@
-from typing import Any, Dict, Optional, Union
+from typing import Optional, Union
 
 from fastapi import APIRouter, Depends, File, UploadFile
 from lxml import etree
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
+from core.dependencies import get_accept_request_header, load_json_file
+from core.responses import success_response
+from core.xml_parser import XMLParser
 from src.config.annotations import JSONType
-from src.utils.dependencies import get_accept_request_header, load_json_file
-from src.utils.responses import success_response
-from tasks.xml_parser import XMLParser
 
 router = APIRouter()
 
 
 @router.post("/xml2json")
-async def convert_xml2json_request(file: UploadFile = File(...)) -> Dict[str, Any]:
+async def convert_xml2json_request(file: UploadFile = File(...)) -> JSONResponse:
     """
     Convert XML to JSON
     :param file: XML file as multipart/form-data
@@ -26,7 +26,7 @@ async def convert_xml2json_request(file: UploadFile = File(...)) -> Dict[str, An
 async def convert_json2xml_request(
     accept_header: Optional[str] = Depends(get_accept_request_header),
     json_data: JSONType = Depends(load_json_file),
-) -> Union[Response, dict[str, Any]]:
+) -> Union[Response, JSONResponse]:
     """
     Endpoint that converts JSON to XML.
 

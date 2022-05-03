@@ -8,7 +8,7 @@ import pytest
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 
-from src.tasks.xml_parser import XMLParser
+from src.core.xml_parser import XMLParser
 
 
 def json_xml_valid_case_files() -> List[Tuple[str, ...]]:

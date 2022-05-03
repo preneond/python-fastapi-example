@@ -27,6 +27,15 @@ class UvicornSettings(BaseSettings):
     reload: bool
 
 
+class ApiConfigSettings(BaseSettings):
+    """Settings for FastAPI Server"""
+
+    title: str = ""
+    description: str = ""
+    version: str
+    docs_url: str
+
+
 class DatabaseConnectionSettings(BaseSettings):
     """Settings for database connection"""
 
@@ -52,6 +61,7 @@ class DatabaseConnectionSettings(BaseSettings):
 class Settings(BaseSettings):
     uvicorn: UvicornSettings
     db_connection: DatabaseConnectionSettings
+    api_config: ApiConfigSettings
 
 
 def load_from_yaml() -> Any:
