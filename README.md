@@ -1,6 +1,3 @@
-# simple_fastapi_app
+# Simple FastAPI Server Application
 
-
-## License
-
-This project is licensed under the terms of the MIT license.
+add description here
