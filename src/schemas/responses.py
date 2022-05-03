@@ -1,15 +1,10 @@
 from typing import List
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
+
+from schemas.models import User
 
 
-# db schemas
-class User(BaseModel):
-    email: EmailStr
-    value: str
-
-
-# response schemas
 class ServiceBaseResponse(BaseModel):
     """Response model that is sent when Image Evaluation is requested"""
 
@@ -22,12 +17,3 @@ class UserListResponse(ServiceBaseResponse):
 
 class UserResponse(ServiceBaseResponse):
     data: User
-
-
-# request schemas
-class UserCreateRequest(BaseModel):
-    value: str
-
-
-class UserUpdateRequest(BaseModel):
-    value: str

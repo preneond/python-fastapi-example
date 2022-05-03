@@ -3,15 +3,15 @@ from pydantic import EmailStr
 from starlette import status
 from starlette.responses import JSONResponse
 
-from core import schemas
 from core.database import DatabaseConnection
 from core.dependencies import get_db_connection
 from core.responses import error_response, success_response
+from schemas import requests, responses
 
 router = APIRouter()
 
 
-@router.get("/users", response_model=schemas.UserListResponse)
+@router.get("/users", response_model=responses.UserListResponse)
 async def get_users(
     offset: int = Query(default=0),
     limit: int = Query(default=10),
@@ -30,7 +30,7 @@ async def get_users(
     return success_response(users)
 
 
-@router.get("/user", response_model=schemas.UserResponse)
+@router.get("/user", response_model=responses.UserResponse)
 async def get_user_associated_value(
     email: EmailStr = Query(..., description="Email address of the user"),
     db_connection: DatabaseConnection = Depends(get_db_connection),
@@ -48,9 +48,9 @@ async def get_user_associated_value(
         return error_response("User not found", status_code=status.HTTP_404_NOT_FOUND)
 
 
-@router.post("/user", response_model=schemas.ServiceBaseResponse)
+@router.post("/user", response_model=responses.ServiceBaseResponse)
 async def create_user_associated_value(
-    user_in: schemas.UserCreateRequest,
+    user_in: requests.UserCreateRequest,
     email: EmailStr = Query(..., description="Email address of the user"),
     db_connection: DatabaseConnection = Depends(get_db_connection),
 ) -> JSONResponse:
@@ -68,7 +68,7 @@ async def create_user_associated_value(
     return success_response()
 
 
-@router.delete("/user", response_model=schemas.ServiceBaseResponse)
+@router.delete("/user", response_model=responses.ServiceBaseResponse)
 async def delete_user_associated_value(
     email: EmailStr = Query(..., description="Email address of the user"),
     db_connection: DatabaseConnection = Depends(get_db_connection),
