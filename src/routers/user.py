@@ -62,8 +62,8 @@ async def create_user_associated_value(
     :return: plain text value associated with the provided email address
     """
     db_connection.execute(
-        "INSERT INTO users VALUES(%s, %s) ON CONFLICT (email) DO UPDATE SET email = %s;",
-        (email, user_in.value, email),
+        "INSERT INTO users VALUES(%s, %s) ON CONFLICT (email) DO UPDATE SET value = %s;",
+        (email, user_in.value, user_in.value),
     )
     return success_response()
 

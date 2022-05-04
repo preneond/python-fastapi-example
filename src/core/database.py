@@ -1,4 +1,4 @@
-from typing import Any, List, Mapping, Sequence, Tuple, Union
+from typing import Any, List, Mapping, Optional, Sequence, Tuple, Union
 
 import psycopg2
 from psycopg2._psycopg import connection
@@ -10,8 +10,10 @@ class DatabaseConnection:
 
     conn: connection
 
-    def __init__(self, dsn: str):
-        self.conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
+    def __init__(
+        self, conn: Optional[connection] = None, dsn: Optional[str] = None
+    ) -> None:
+        self.conn = conn or psycopg2.connect(dsn, cursor_factory=RealDictCursor)
 
     def query_all(
         self, query: str, params: Union[Sequence[Any], Mapping[str, Any], None] = None
