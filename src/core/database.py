@@ -1,4 +1,4 @@
-from typing import Any, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, List, Mapping, Sequence, Tuple, Union
 
 import psycopg2
 from psycopg2._psycopg import connection
@@ -23,7 +23,7 @@ class DatabaseConnection:
 
     def query_one(
         self, query: str, params: Union[Sequence[Any], Mapping[str, Any], None] = None
-    ) -> Optional[Tuple[Any, ...]]:
+    ) -> Tuple[Any, ...] | None:
         """Execute a query and return the results"""
         with self.conn.cursor() as cursor:
             cursor.execute(query, params)
@@ -35,8 +35,8 @@ class DatabaseConnection:
         """Execute a query and commit the changes"""
         with self.conn.cursor() as cursor:
             cursor.execute(query, params)
-        self.conn.commit()
+        self.conn.commit()  # type: ignore
 
     def close(self) -> None:
         """Close the connection"""
-        self.conn.close()
+        self.conn.close()  # type: ignore

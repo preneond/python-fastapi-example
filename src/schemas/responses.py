@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from schemas.models import User
+from src.schemas.models import User
 
 
 class ServiceBaseResponse(BaseModel):

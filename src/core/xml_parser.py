@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 from lxml import etree
 from lxml.etree import _Element, parse
@@ -45,6 +45,32 @@ class XMLElementType(str, Enum):
         else:
             raise ValueError(f"Unsupported type: {type(value)}")
 
+    def parse_element_value(self, value: Optional[str]) -> Any:
+        # element value validation check
+        if value is None:
+            if self is XMLElementType.NULL:
+                return None
+            elif self is XMLElementType.OBJECT:
+                # edge case -> when json looks like {}, we do not want to return "null", but <item type="object"/>
+                return {}
+            else:
+                raise ValueError("Invalid XML file schema")
+
+        # element type validation check
+        match self:
+            case XMLElementType.STRING:
+                return value
+            case XMLElementType.INTEGER:
+                return int(value)
+            case XMLElementType.FLOAT:
+                return float(value)
+            case XMLElementType.BOOLEAN:
+                return value == "true"
+            case _:
+                raise NotImplementedError(
+                    f"Etree element type not supported: {self.value}"
+                )
+
 
 class XMLParser:
     """
@@ -63,36 +89,14 @@ class XMLParser:
         element_type = XMLElementType(element.get("type"))
         element_value = element.get("value")
 
-        # element value validation check
-        if element_value is None:
-            if element_type is XMLElementType.NULL:
-                return None
-            elif element_type is XMLElementType.OBJECT:
-                # edge case -> when json looks like {}, we do not want to return "null", but <item type="object"/>
-                return {}
-            else:
-                raise ValueError("Invalid XML file schema")
-
-        # element type validation check
-        if element_type is XMLElementType.STRING:
-            return element_value
-        if element_type is XMLElementType.INTEGER:
-            return int(element_value)
-        elif element_type is XMLElementType.FLOAT:
-            return float(element_value)
-        elif element_type is XMLElementType.BOOLEAN:
-            return element_value == "true"
-        else:
-            raise NotImplementedError(
-                f"Etree element type not supported: {element_type}"
-            )
+        return element_type.parse_element_value(element_value)
 
     @staticmethod
     def _parse_etree_to_json_type(node: _Element) -> JSONType:
         """
-        Converts lxml.etree.ElementTree to a :type JSONObject.
+        Converts lxml.etree.ElementTree to a :type JSONType.
         :param node: etree node
-        :return: JSONObject
+        :return: JSONType
         """
 
         # if the node is leaf, then return the value of the node with/without its key
@@ -132,42 +136,44 @@ class XMLParser:
     @staticmethod
     def _parse_json_data_to_etree(data: JSONType) -> _Element:
         """
-        Converts a :type JSONObject to lxml.etree.ElementTree.
-        :param item: JSONObject
+        Converts a :type JSONType to lxml.etree.ElementTree.
+        :param data: JSONType data
         :return: lxml.etree.ElementTree
         """
-        item_type = XMLElementType.from_value(data)
-        if item_type is XMLElementType.OBJECT:
-            element = etree.Element("ITEM", attrib={"type": "object"})
-            for key, value in data.items():  # type: ignore
-                child = XMLParser._parse_json_data_to_etree(value)
-                child.set("key", key)
-                element.append(child)
-            return element
-        elif item_type is XMLElementType.LIST:
-            element = etree.Element("ITEM", attrib={"type": "list"})
-            for value in data:  # type: ignore
-                child = XMLParser._parse_json_data_to_etree(value)
-                element.append(child)
-            return element
-        elif item_type is XMLElementType.STRING:
-            return etree.Element("ITEM", attrib={"type": "string", "value": data})  # type: ignore
-        elif item_type is XMLElementType.INTEGER:
-            return etree.Element(
-                "ITEM", attrib={"type": "integer", "value": json.dumps(data)}
-            )
-        elif item_type is XMLElementType.FLOAT:
-            return etree.Element(
-                "ITEM", attrib={"type": "float", "value": json.dumps(data)}
-            )
-        elif item_type is XMLElementType.BOOLEAN:
-            return etree.Element(
-                "ITEM", attrib={"type": "boolean", "value": json.dumps(data)}
-            )
-        elif item_type is XMLElementType.NULL:
-            return etree.Element("ITEM", attrib={"type": "null"})
-        else:
-            raise ValueError("Invalid JSON format")
+        element_type = XMLElementType.from_value(data)
+        element = etree.Element("ITEM", attrib={"type": element_type.value})
+        element_value: Optional[str] = None
+
+        # Set element children and value based on the type of the item
+        match element_type:
+            # if the element is an object, then assign children to element keys recursively
+            case XMLElementType.OBJECT:
+                for key, value in data.items():  # type: ignore
+                    child = XMLParser._parse_json_data_to_etree(value)
+                    child.set("key", key)
+                    element.append(child)
+            # if the element is a list, then append children to element
+            case XMLElementType.LIST:
+                for value in data:  # type: ignore
+                    child = XMLParser._parse_json_data_to_etree(value)
+                    element.append(child)
+            # if the element type is a string leaf, then set the value of the element
+            case XMLElementType.STRING:
+                element_value = data  # type: ignore
+            # if the element type is a leaf and not a string, then set the json-dumped value of the element
+            case XMLElementType.INTEGER | XMLElementType.FLOAT | XMLElementType.BOOLEAN:
+                element_value = json.dumps(data)
+            # if the element type is null, then do not set the value of the element
+            case XMLElementType.NULL:
+                pass
+            # if the element type is not one of above type, then raise an error
+            case _:
+                raise NotImplementedError("Unsupported type for parsing")
+
+        if element_value is not None:
+            element.set("value", element_value)
+
+        return element
 
     @staticmethod
     def parse_file(file: Any) -> JSONType:

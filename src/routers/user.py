@@ -3,10 +3,10 @@ from pydantic import EmailStr
 from starlette import status
 from starlette.responses import JSONResponse
 
-from core.database import DatabaseConnection
-from core.dependencies import get_db_connection
-from core.responses import error_response, success_response
-from schemas import requests, responses
+from src.core.database import DatabaseConnection
+from src.core.dependencies import get_db_connection
+from src.core.responses import error_response, success_response
+from src.schemas import requests, responses
 
 router = APIRouter()
 
