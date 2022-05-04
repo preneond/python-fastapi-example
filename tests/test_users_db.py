@@ -1,24 +1,28 @@
 import asyncio
 import json
 import tempfile
+from os.path import abspath, dirname, join
+from typing import Generator
 
 import pytest
 from psycopg2._psycopg import connection
+from pydantic import EmailStr
 from pytest_postgresql import factories
 from starlette.responses import JSONResponse
 
-from core.database import DatabaseConnection
-from routers.user import (
+from src.core.database import DatabaseConnection
+from src.routers.user import (
     create_user_associated_value,
     delete_user_associated_value,
     get_users,
 )
-from schemas.requests import UserCreateRequest
+from src.schemas.requests import UserCreateRequest
 
 socket_dir = tempfile.TemporaryDirectory()
 postgresql_proc = factories.postgresql_proc(port=None, unixsocketdir=socket_dir.name)
 postgresql_mocked = factories.postgresql(
-    "postgresql_proc", load=["../database/init.sql"]
+    "postgresql_proc",
+    load=[join(dirname(dirname(abspath(__file__))), "database/init.sql")],
 )
 
 EMAIL_LIST = [
@@ -32,7 +36,9 @@ EMAIL_LIST = [
 
 
 @pytest.fixture(scope="function")
-def db_connection_mocked(postgresql_mocked: connection) -> DatabaseConnection:
+def db_connection_mocked(
+    postgresql_mocked: connection,
+) -> Generator[DatabaseConnection, None, None]:
     db_connection = DatabaseConnection(conn=postgresql_mocked)
     yield db_connection
     db_connection.close()
@@ -45,7 +51,7 @@ async def mock_users(db_connection_mocked: DatabaseConnection) -> None:
         *[
             create_user_associated_value(
                 user_in=UserCreateRequest(value="test_value"),
-                email=email,
+                email=EmailStr(email),
                 db_connection=db_connection_mocked,
             )
             for email in EMAIL_LIST
@@ -80,7 +86,7 @@ async def test_insert_users(
         *[
             create_user_associated_value(
                 user_in=test_user_in,
-                email=test_user_email,
+                email=EmailStr(test_user_email),
                 db_connection=db_connection_mocked,
             )
             for test_user_email, test_user_in in test_user_email_value_arr
@@ -104,12 +110,12 @@ async def test_update_user_value(db_connection_mocked: DatabaseConnection) -> No
         *[
             create_user_associated_value(
                 user_in=test_user_in_value1,
-                email=test_user_email,
+                email=EmailStr(test_user_email),
                 db_connection=db_connection_mocked,
             ),
             create_user_associated_value(
                 user_in=test_user_in_value2,
-                email=test_user_email,
+                email=EmailStr(test_user_email),
                 db_connection=db_connection_mocked,
             ),
         ]
@@ -132,11 +138,11 @@ async def test_delete_user(db_connection_mocked: DatabaseConnection) -> None:
         *[
             create_user_associated_value(
                 user_in=test_user_in_value1,
-                email=test_user_email,
+                email=EmailStr(test_user_email),
                 db_connection=db_connection_mocked,
             ),
             delete_user_associated_value(
-                email=test_user_email, db_connection=db_connection_mocked
+                email=EmailStr(test_user_email), db_connection=db_connection_mocked
             ),
         ]
     )
