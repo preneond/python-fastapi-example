@@ -13,8 +13,6 @@ ENV PYTHONPATH=/app
 
 EXPOSE 8000
 
-RUN pip install --no-cache-dir -r /app/requirements.txt
-
 WORKDIR /app
 
 # sleep to wait until the database is ready
