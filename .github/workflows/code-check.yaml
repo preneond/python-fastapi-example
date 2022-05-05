@@ -17,6 +17,7 @@ jobs:
       with:
         python-version: '3.10'
         architecture: x64
+
     - name: 🏗 Setup test environment
       run: |
         python3 -m venv testenv
