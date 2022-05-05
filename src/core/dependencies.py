@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 from fastapi import File, UploadFile
 from starlette.requests import Request
@@ -18,7 +19,7 @@ async def load_json_file(file: UploadFile = File(...)) -> JSONType:
     return json_data
 
 
-async def get_accept_request_header(request: Request) -> str | None:
+async def get_accept_request_header(request: Request) -> Optional[str]:
     """
     Returns the value of the Accept header of the request.
     :param request: request

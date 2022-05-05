@@ -1,4 +1,5 @@
-FROM python:3.10
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
+
 
 COPY ./requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
@@ -15,4 +16,6 @@ EXPOSE 8000
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 WORKDIR /app
-CMD [ "python", "src/main.py" ]
+
+# sleep to wait until the database is ready
+CMD sleep 5 && python src/main.py

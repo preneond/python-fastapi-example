@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from fastapi import APIRouter, Depends, File, UploadFile
 from lxml import etree
@@ -26,7 +26,7 @@ async def convert_xml2json_request(file: UploadFile = File(...)) -> JSONResponse
 async def convert_json2xml_request(
     accept_header: Optional[str] = Depends(get_accept_request_header),
     json_data: JSONType = Depends(load_json_file),
-) -> Response | JSONResponse:
+) -> Union[Response, JSONResponse]:
     """
     Endpoint that converts JSON to XML.
 

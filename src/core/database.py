@@ -25,7 +25,7 @@ class DatabaseConnection:
 
     def query_one(
         self, query: str, params: Union[Sequence[Any], Mapping[str, Any], None] = None
-    ) -> Tuple[Any, ...] | None:
+    ) -> Optional[Tuple[Any, ...]]:
         """Execute a query and return the results"""
         with self.conn.cursor() as cursor:
             cursor.execute(query, params)
