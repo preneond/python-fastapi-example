@@ -1,0 +1,43 @@
+# Build pipeline for Web Service
+name: Code Quality Check
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  prepare-env:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🏗 Setup repo
+    - uses: actions/checkout@v3
+
+    - name: 🏗 Setup Python
+    - uses: actions/setup-python@v3
+      with:
+        python-version: 3.10
+        architecture: x64
+
+  test:
+    needs: [prepare-env]
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🏗 Setup test environment
+      run:  |
+      python3 -m venv testenv
+      source testenv/bin/activate
+      python3 -m pip install --upgrade pip
+
+    - name: 📦 Install dependencies
+      run:  |
+      pip install -r requirements.txt
+      pip install -r dev-requirements.txt
+
+    - name: 👷‍ Run Tests
+    - run: export PYTHONPATH="$PYTHONPATH:$PWD/src" && pytest --cov-report html
+
+    - name: 🚮 Remove test environment
+    - run: |
+        echo Deleting testenv
+        deactivate
+        rm -rf testenv

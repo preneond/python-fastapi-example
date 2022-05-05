@@ -8,9 +8,9 @@ from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
-from core.database import DatabaseConnection
-from core.responses import error_response
 from src.config.settings import get_settings
+from src.core.database import DatabaseConnection
+from src.core.responses import error_response
 from src.routers import api_router
 
 settings = get_settings()

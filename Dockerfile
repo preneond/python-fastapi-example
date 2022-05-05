@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10
 
 COPY ./requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
@@ -8,7 +8,7 @@ COPY ./src /app/src
 
 ENV PYTHONPATH=/app/src
 
-EXPOSE 80
+EXPOSE 8000
 
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
