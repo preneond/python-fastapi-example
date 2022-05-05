@@ -24,9 +24,9 @@ jobs:
     steps:
     - name: 🏗 Setup test environment
       run:  |
-      python3 -m venv testenv
-      source testenv/bin/activate
-      python3 -m pip install --upgrade pip
+        python3 -m venv testenv
+        source testenv/bin/activate
+        python3 -m pip install --upgrade pip
 
     - name: 📦 Install dependencies
       run:  pip install -r requirements.txt -r dev-requirements.txt
