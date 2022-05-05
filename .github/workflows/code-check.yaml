@@ -27,6 +27,12 @@ jobs:
     - name: 📦 Install dependencies
       run:  pip install -r requirements.txt -r dev-requirements.txt
 
+    - name: ❄️ Run Flake8
+      run: flake8 src
+
+    - name: ✏️ Run Mypy
+      run: python -m mypy src
+
     - name: 👷‍ Run Tests
       run: pytest --cov-report html
 
