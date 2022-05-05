@@ -1,16 +1,16 @@
 # server environment configuration
 uvicorn:
-  host: 0.0.0.0
-  port: 8000
-  log_level: debug
-  reload: true
+  host: ${UvicornHost}
+  port: ${UvicornPort}
+  log_level: info
+  reload: false
 db_connection:
-  postgres_user: postgres
-  postgres_password: postgres
-  postgres_server: localhost
-  postgres_database: app
+  postgres_user: ${PostgresUser}
+  postgres_password: ${PostgresPassword}
+  postgres_server: ${PostgresServer}
+  postgres_database: ${PosgresDatabase}
 api_config:
-  title: "Simple FastAPI Server"
-  description: "API Documentation for Simple FastAPI Server"
+  title: Simple FastAPI Server
+  description: API Documentation for Simple FastAPI Server
   version: v1
   docs_url: /docs
