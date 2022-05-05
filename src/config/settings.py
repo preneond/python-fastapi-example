@@ -1,11 +1,9 @@
-import os
 from enum import Enum
 from functools import lru_cache
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import yaml
-from pydantic import BaseSettings, Field, PostgresDsn, validator
+from pydantic import BaseSettings, Field, PostgresDsn
 
 
 class LogLevels(str, Enum):
@@ -43,18 +41,15 @@ class DatabaseConnectionSettings(BaseSettings):
     postgres_password: str
     postgres_database: str
     postgres_server: str
-    postgres_uri: Optional[PostgresDsn] = None
 
-    @validator("postgres_uri", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> str:
-        if isinstance(v, str):
-            return v
+    @property
+    def postgres_uri(self) -> str:
         return PostgresDsn.build(
             scheme="postgresql",
-            user=values.get("postgres_user"),
-            password=values.get("postgres_password"),
-            host=values.get("postgres_server"),
-            path=f"/{values.get('postgres_database')}",
+            user=self.postgres_user,
+            password=self.postgres_password,
+            host=self.postgres_server,
+            path=f"/{self.postgres_database}",
         )
 
 
@@ -65,12 +60,7 @@ class Settings(BaseSettings):
 
 
 def load_from_yaml() -> Any:
-    yaml_path = (
-        Path("appsettings.yaml")
-        if os.getenv("SERVER_ENV")
-        else Path("appsettings-local.yaml")
-    )
-    with open(yaml_path) as fp:
+    with open("appsettings.yaml") as fp:
         config = yaml.safe_load(fp)
     return config
 

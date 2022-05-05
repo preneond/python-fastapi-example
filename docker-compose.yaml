@@ -5,14 +5,15 @@ services:
     image: postgres:14.2
     volumes:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-    env_file:
-      - .env
+    environment:
+      - POSTGRES_USER=${PostgresUser}
+      - POSTGRES_PASSWORD=${PostgresPassword}
+      - POSTGRES_SERVER=${PostgresServer}
+      - POSTGRES_DB=${PostgresDb}
     ports:
       - "5432:5432"
   app:
     build: .
-    env_file:
-      - .env
     ports:
       - "8000:8000"
     depends_on:

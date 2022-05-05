@@ -142,6 +142,7 @@ cython_debug/
 .idea
 
 # app settings config
-appsettings-local.yaml
+appsettings.yaml
+docker-compose.yaml
 
 test-output.xml
