@@ -35,7 +35,7 @@ docker-compose up
 In order to run the application locally (for development purposes), you need to set `localhost` value to `db_connection.postgres_server` in `appsettings.yaml` file. Then you can run the following command.
 
 ```bash
-docker run -d -p 5432:5432 -e POSTGRES_USER=xxx -e POSTGRES_PASSWORD=xxx -e POSTGRES_SERVER=xxx -e POSTGRES_DB=xxx postgres:14.2
+docker run -d -p 5432:5432 -e POSTGRES_USER=xxx -e POSTGRES_PASSWORD=xxx -e -e POSTGRES_DB=xxx postgres:14.2
 python src/main.py
 ```
 
@@ -61,11 +61,11 @@ The template page is accessible on root path `/`.
 
 The second task aims to demonstrate database operations.
 
-    * `[GET] /user?email=<email_address>`: returns user's value
-    * `[POST] /user?email=<email_address>`: creates new user with given value. If the user already exists, it updates the value.
-    * `[DELETE] /user?email=<email_address>`: deletes user and the value
-    * `[GET] /users`: returns all users and their values. The users are alphabetically sorted.
-        * it accepts optional arguments `limit` and `offset` to limit the number of users and offset the users.
+- `[GET] /user?email=<email_address>` : returns user's value
+- `[POST] /user?email=<email_address>` : creates new user with given value. If the user already exists, it updates the value.
+- `[DELETE] /user?email=<email_address>` : deletes user and the value
+- `[GET] /users` : returns all users and their values. The users are alphabetically sorted.
+  - it accepts optional arguments `limit` and `offset` to limit the number of users and offset the users.
 
 
 **Note:** More details about exposed endpoints can be found in the `/docs` REST API swagger.
@@ -89,7 +89,7 @@ PyYAML==6.0
 aiofiles==0.8.0
 jinja2==3.1.2
 email-validator==1.2.1
-# dev requirements
+# Development-needed requirements
 mypy==0.950
 flake8==4.0.1
 autoflake==1.4
