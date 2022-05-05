@@ -14,8 +14,9 @@ from src.core.xml_parser import XMLParser
 def json_xml_valid_case_files() -> List[Tuple[str, ...]]:
     case_files_array: List[Tuple[str, ...]] = []
     for file in glob.glob("tests/data/xml_json/*"):
-        case = glob.glob(os.path.join(file, "test.*"))
-        case_files_array.append(tuple(case))
+        case_files_array.append(
+            (os.path.join(file, "test.json"), os.path.join(file, "test.xml"))
+        )
     return case_files_array
 
 
