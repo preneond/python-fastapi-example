@@ -18,7 +18,13 @@ async def get_users(
     db_connection: DatabaseConnection = Depends(get_db_connection),
 ) -> JSONResponse:
     """
-    Returns a list of all users.
+    Returns a list of users
+
+    Parameters:
+    - **offset**: offset of the first user to return - default 0
+    - **limit**: limit of users to return - default 10
+    - **db_connection**: DatabaseConnection object
+    \f
     :param limit: number of users to return - default 10
     :param offset: offset of the first user to return - default 0
     :param db_connection: DatabaseConnection object
@@ -36,10 +42,15 @@ async def get_user_associated_value(
     db_connection: DatabaseConnection = Depends(get_db_connection),
 ) -> JSONResponse:
     """
-    Returns the plain text value associated with the provided email address.
+    Returns the user object with the provided email address.
+
+    Parameters:
+    - **email**: email address of the user
+    - **db_connection**: DatabaseConnection object
+    \f
     :param email: email address of the user
     :param db_connection: `DatabaseConnection` object
-    :return: plain text value associated with the provided email address
+    :return: user object with the provided email address.
     """
     user = db_connection.query_one("SELECT * FROM users WHERE email = %s", (email,))
     if user is not None:
@@ -56,10 +67,18 @@ async def create_user_associated_value(
 ) -> JSONResponse:
     """
     Creates the plain text value associated with the provided email address.
+
+    Parameters:
+    - **email**: email address of the user
+    - **user_in**: `UserCreateRequest` object
+    - **db_connection**: DatabaseConnection object
+
+    Returns success if the user was created successfully.
+    \f
     :param email: email address of the user
     :param user_in: `UserCreateRequest` object
     :param db_connection: DatabaseConnection object
-    :return: plain text value associated with the provided email address
+    :return: success if the user was created successfully.
     """
     db_connection.execute(
         "INSERT INTO users VALUES(%s, %s) ON CONFLICT (email) DO UPDATE SET value = %s;",
@@ -75,9 +94,16 @@ async def delete_user_associated_value(
 ) -> JSONResponse:
     """
     Deletes plain text value associated with the provided email address.
+
+    Parameters:
+    - **email**: email address of the user
+    - **db_connection**: DatabaseConnection object
+
+    Returns success if the user was deleted successfully.
+    \f
     :param email: email address of the user
     :param db_connection: DatabaseConnection object
-    :return: plain text value associated with the provided email address
+    :return: success if the user was deleted successfully.
     """
 
     db_connection.execute("DELETE FROM users WHERE email = %s", (email,))

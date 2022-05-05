@@ -18,6 +18,12 @@ router = APIRouter()
 async def convert_xml2json_request(file: UploadFile = File(...)) -> JSONResponse:
     """
     Convert XML to JSON
+
+    Parameters:
+    - **file**: XML file as multipart/form-data**: input JSON file as multipart/form-data
+
+    Returns JSON as a response.
+    \f
     :param file: XML file as multipart/form-data
     """
     if file.content_type != "text/xml":
@@ -37,12 +43,17 @@ async def convert_json2xml_request(
 ) -> Union[Response, JSONResponse]:
     """
     Endpoint that converts JSON to XML.
+    When `accept` request header is set to `text/xml`, returns XML as response.
+    Otherwise, returns JSON as response.
 
-    Returns XML in data JSON key by default.
-    If `accept` request header is set to `text/xml`, returns XML as response.
+    Request Path parameters:
+    - **file**: input JSON file as multipart/form-data
+    - **accept_header**: request header `accept`
 
+    \f
     :param file: input JSON file as multipart/form-data
     :param accept_header: request header `accept`
+    :returns: XML in data JSON key by default.
     """
     if file.content_type != "application/json":
         return error_response(
