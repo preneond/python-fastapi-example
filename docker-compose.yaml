@@ -6,9 +6,10 @@ services:
     volumes:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=appw
+      - POSTGRES_USER=${PostgresUser}
+      - POSTGRES_PASSWORD=${PostgresPassword}
+      - POSTGRES_SERVER=${PostgresServer}
+      - POSTGRES_DB=${PostgresDatabase}
     ports:
       - "5432:5432"
   app:
