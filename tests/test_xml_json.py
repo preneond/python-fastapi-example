@@ -13,11 +13,7 @@ from src.core.xml_parser import XMLParser
 
 def json_xml_valid_case_files() -> List[Tuple[str, ...]]:
     case_files_array: List[Tuple[str, ...]] = []
-    json_xml_valid_case_path_files = os.path.join(
-        os.path.dirname(__file__), "data/xml_json/*"
-    )
-    print(json_xml_valid_case_path_files)
-    for file in glob.glob(json_xml_valid_case_path_files):
+    for file in glob.glob(os.path.join("data/xml_json/*")):
         case = glob.glob(os.path.join(file, "test.*"))
         case_files_array.append(tuple(case))
     return case_files_array
@@ -25,9 +21,7 @@ def json_xml_valid_case_files() -> List[Tuple[str, ...]]:
 
 def json_invalid_format_files() -> List[str]:
     case_files_array: List[str] = []
-    for case in glob.glob(
-        os.path.join(os.path.dirname(__file__), "data/json_invalid/*/test.json")
-    ):
+    for case in glob.glob(os.path.join("data/json_invalid/*/test.json")):
         case_files_array.append(case)
     return case_files_array
 

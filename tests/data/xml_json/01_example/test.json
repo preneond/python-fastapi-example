@@ -1,0 +1,14 @@
+{
+  "apple": 7,
+  "orange": 4.1,
+  "other": {
+    "banana": "fruit"
+  },
+  "many": [
+    true,
+    "thing",
+    {
+      "pineapple": null
+    }
+  ]
+}

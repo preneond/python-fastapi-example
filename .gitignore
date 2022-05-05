@@ -144,7 +144,4 @@ cython_debug/
 # app settings config
 appsettings-local.yaml
 
-# local test cases
-tests/data
-
 test-output.xml
