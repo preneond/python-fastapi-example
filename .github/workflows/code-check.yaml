@@ -15,13 +15,8 @@ jobs:
     - name: 🏗 Setup Python
       uses: actions/setup-python@v3
       with:
-        python-version: "3.10"
+        python-version: '3.10'
         architecture: x64
-
-  test:
-    needs: [prepare-env]
-    runs-on: ubuntu-latest
-    steps:
     - name: 🏗 Setup test environment
       run: |
         python3 -m venv testenv
