@@ -29,15 +29,11 @@ jobs:
       python3 -m pip install --upgrade pip
 
     - name: 📦 Install dependencies
-      run:  |
-      pip install -r requirements.txt
-      pip install -r dev-requirements.txt
+      run:  pip install -r requirements.txt -r dev-requirements.txt
 
     - name: 👷‍ Run Tests
     - run: export PYTHONPATH="$PYTHONPATH:$PWD/src" && pytest --cov-report html
 
     - name: 🚮 Remove test environment
-    - run: |
-        echo Deleting testenv
-        deactivate
+    - run: deactivate
         rm -rf testenv
