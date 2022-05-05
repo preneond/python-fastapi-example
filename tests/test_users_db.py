@@ -5,6 +5,7 @@ from os.path import abspath, dirname, join
 from typing import Generator
 
 import pytest
+import pytest_asyncio
 from psycopg2._psycopg import connection
 from pydantic import EmailStr
 from pytest_postgresql import factories
@@ -44,8 +45,7 @@ def db_connection_mocked(
     db_connection.close()
 
 
-@pytest.mark.asyncio
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def mock_users(db_connection_mocked: DatabaseConnection) -> None:
     _ = await asyncio.gather(
         *[

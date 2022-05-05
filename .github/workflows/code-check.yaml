@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  prepare-env:
+  code-check:
     runs-on: ubuntu-latest
     steps:
     - name: 🏗 Setup repo
@@ -28,9 +28,9 @@ jobs:
       run:  pip install -r requirements.txt -r dev-requirements.txt
 
     - name: 👷‍ Run Tests
-      run: |
-        export PYTHONPATH="$PYTHONPATH:$PWD/src"
-        pytest --cov-report html
+      run: pytest --cov-report html
 
     - name: 🚮 Remove test environment
-      run: deactivate; rm -rf testenv
+      run: |
+        deactivate
+        rm -rf testenv
