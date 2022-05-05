@@ -1,7 +1,6 @@
 import asyncio
 import json
 import tempfile
-from os.path import abspath, dirname, join
 from typing import Generator
 
 import pytest
@@ -23,7 +22,7 @@ socket_dir = tempfile.TemporaryDirectory()
 postgresql_proc = factories.postgresql_proc(port=None, unixsocketdir=socket_dir.name)
 postgresql_mocked = factories.postgresql(
     "postgresql_proc",
-    load=[join(dirname(dirname(abspath(__file__))), "database/init.sql")],
+    load=["database/init.sql"],
 )
 
 EMAIL_LIST = [

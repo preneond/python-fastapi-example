@@ -2,7 +2,6 @@ import glob
 import json
 import os
 from json import JSONDecodeError
-from os.path import abspath, dirname, join
 from typing import List, Tuple
 
 import pytest
@@ -14,7 +13,7 @@ from src.core.xml_parser import XMLParser
 
 def json_xml_valid_case_files() -> List[Tuple[str, ...]]:
     case_files_array: List[Tuple[str, ...]] = []
-    for file in glob.glob(join(dirname(abspath(__file__)), "data/xml_json/*")):
+    for file in glob.glob("tests/data/xml_json/*"):
         case = glob.glob(os.path.join(file, "test.*"))
         case_files_array.append(tuple(case))
     return case_files_array
@@ -22,18 +21,14 @@ def json_xml_valid_case_files() -> List[Tuple[str, ...]]:
 
 def json_invalid_format_files() -> List[str]:
     case_files_array: List[str] = []
-    for case in glob.glob(
-        join(dirname(abspath(__file__)), "data/json_invalid/*/test.json")
-    ):
+    for case in glob.glob("tests/data/json_invalid/*/test.json"):
         case_files_array.append(case)
     return case_files_array
 
 
 def xml_invalid_format_files() -> List[str]:
     case_files_array: List[str] = []
-    for case in glob.glob(
-        join(dirname(abspath(__file__)), "data/xml_invalid/*/test.xml")
-    ):
+    for case in glob.glob("tests/data/xml_invalid/*/test.xml"):
         case_files_array.append(case)
     return case_files_array
 

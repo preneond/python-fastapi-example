@@ -34,9 +34,4 @@ jobs:
       run: python -m mypy src
 
     - name: 👷‍ Run Tests
-      run: pytest --cov-report html
-
-    - name: 🚮 Remove test environment
-      run: |
-        deactivate
-        rm -rf testenv
+      run: pytest
