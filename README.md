@@ -1,6 +1,6 @@
 # Simple FastAPI Server Application
 
-This project is FastAPI server application that simple performs two different tasks.
+This project is FastAPI server application that performs two different tasks - XML/JSON conversion and database operations 
 
 ## Dependencies to install
 
