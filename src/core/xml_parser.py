@@ -176,7 +176,7 @@ class XMLParser:
         return element
 
     @staticmethod
-    def parse_file(file: Any) -> JSONType:
+    def parse_xml_from_file(file: Any) -> JSONType:
         """
         Parses XML file to JSONType object
         :param file:
@@ -186,7 +186,7 @@ class XMLParser:
         return XMLParser._parse_etree_to_json_type(node=xml_parsed.getroot())
 
     @staticmethod
-    def parse_json(data: JSONType) -> _Element:
+    def parse_xml_from_json(data: JSONType) -> _Element:
         """
         Parses JSON string to JSONType object
         :param data: JSONType data

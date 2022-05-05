@@ -45,7 +45,7 @@ def test_input_xml_parser_valid_files(xml_file: str, json_file: str) -> None:
     """
 
     with open(json_file, "r") as json_fp:
-        xml_parse_out = XMLParser.parse_file(xml_file)
+        xml_parse_out = XMLParser.parse_xml_from_file(xml_file)
         json_parse_out = json.load(json_fp)
         assert xml_parse_out == json_parse_out
 
@@ -62,7 +62,7 @@ def test_output_xml_parser_valid_files(xml_file: str, json_file: str) -> None:
     with open(json_file, "r") as json_fp, open(xml_file, "r") as xml_fp:
         xml_fp_str = xml_fp.read()
         json_data = json.load(json_fp)
-        xml_parse_out = XMLParser.parse_json(json_data)
+        xml_parse_out = XMLParser.parse_xml_from_json(json_data)
         xml_parse_out_etree = etree.tostring(xml_parse_out, method="c14n")
         assert xml_parse_out_etree.decode("utf-8") == xml_fp_str
 
@@ -82,4 +82,4 @@ def test_xml_parser_invalid_xml_input(xml_file: str) -> None:
     Test XML parsing exception
     """
     with pytest.raises((XMLSyntaxError, ValueError)), open(xml_file, "r") as xml_fp:
-        XMLParser.parse_file(xml_fp)
+        XMLParser.parse_xml_from_file(xml_fp)

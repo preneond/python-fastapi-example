@@ -9,7 +9,6 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
 from src.config.settings import get_settings
-from src.core.database import DatabaseConnection
 from src.core.responses import error_response
 from src.routers import api_router
 
@@ -39,8 +38,8 @@ async def startup_event() -> None:
     logger.addHandler(handler)
     app.state.logger = logger
     # setup db connection
-    db_connection = DatabaseConnection(dsn=settings.db_connection.postgres_uri)
-    app.state.db_connection = db_connection
+    # db_connection = DatabaseConnection(dsn=settings.db_connection.postgres_uri)
+    # app.state.db_connection = db_connection
 
 
 @app.on_event("shutdown")

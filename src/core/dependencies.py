@@ -1,22 +1,8 @@
-import json
 from typing import Optional
 
-from fastapi import File, UploadFile
 from starlette.requests import Request
 
-from src.config.annotations import JSONType
 from src.core.database import DatabaseConnection
-
-
-async def load_json_file(file: UploadFile = File(...)) -> JSONType:
-    """
-    Parses a JSON file and returns its content as a JSONType.
-    :param file: input JSON file
-    :return: JSONType with :param file content
-    """
-    file_data = await file.read()
-    json_data = json.loads(file_data)
-    return json_data
 
 
 async def get_accept_request_header(request: Request) -> Optional[str]:
