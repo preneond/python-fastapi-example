@@ -35,7 +35,7 @@ docker-compose up
 In order to run the application locally (for development purposes), you need to set `localhost` value to `db_connection.postgres_server` in `appsettings.yaml` file. Then you can run the following command.
 
 ```bash
-docker run -d -p 5432:5432 -e POSTGRES_USER=xxx -e POSTGRES_PASSWORD=xxx -e -e POSTGRES_DB=xxx postgres:14.2
+docker run -e  POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=app -p 5432:5432 --volume=/$(pwd)/database/init.sql:/docker-entrypoint-initdb.d/init.sql postgres:14.2
 python src/main.py
 ```
 
