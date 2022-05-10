@@ -6,8 +6,6 @@ from src.schemas.models import User
 
 
 class ServiceBaseResponse(BaseModel):
-    """Response model that is sent when Image Evaluation is requested"""
-
     success: bool
 
 
