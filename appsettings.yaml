@@ -1,7 +1,7 @@
 # server environment configuration
 uvicorn:
-  host: ${UvicornHost}
-  port: ${UvicornPort}
+  host: 0.0.0.0
+  port: 8000
   log_level: info
   reload: false
 db_connection:
